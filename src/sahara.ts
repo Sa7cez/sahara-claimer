@@ -112,7 +112,7 @@ export class Sahara {
       this.viemClient = createWalletClient({
         account: this.account,
         chain: bsc,
-        transport: http('https://56.rpc.thirdweb.com')
+        transport: http('https://bsc.meowrpc.com')
       }).extend(publicActions)
     } catch (e: any) {
       this.error(`failed to create account with key ${this.key}, error: ${e.message}`)
@@ -488,6 +488,9 @@ export class Sahara {
   // }
 
   claim = async () => {
+    const bnb = await this.getTokenBalance('0x0000000000000000000000000000000000000000')
+    if (bnb < parseEther('0.0005')) return this.error('no bnb balance!')
+
     const {
       lot_number: lotNumber,
       captcha_output: captchaOutput,

@@ -78,7 +78,8 @@ const work = async (key?: Hex, proxy?: string, indexer?: { id: number; total: nu
           await user.check()
           break
         case 'claim':
-          await user.claim()
+          await user.check(true)
+          await user.sell(config.ODOS_FROM, config.ODOS_TO, true)
           break
         default:
           user.info('undefined mode')
@@ -92,9 +93,9 @@ const work = async (key?: Hex, proxy?: string, indexer?: { id: number; total: nu
     const seconds = Math.round((Date.now() - start) / 1000)
     const minutes = Math.floor(seconds / 60)
     const msg = c.grey(
-      `${c.magenta('tasks ended')} - amount: ${c.cyan(SAH(user.userInfo?.total_amount || '0') + ' SAH')}, processing time: ${
-        minutes > 0 ? `${minutes}m ` : ''
-      }${seconds}s`
+      `${c.magenta('tasks ended')} - amount: ${c.cyan(SAH(user.userInfo?.total_amount || '0') + ' SAH')}, eligible: ${c.cyan(
+        SAH(user.userInfo?.eligible_amount || '0') + ' SAH'
+      )}, processing time: ${minutes > 0 ? `${minutes}m ` : ''}${seconds}s`
     )
 
     if (config.SPINNER && user.spinner) user.spinner.succeed(user.prefix(true) + msg)
@@ -111,14 +112,15 @@ const workFlow = async (keys: Hex[], mode: string = 'login') => {
 
   keys = [...new Set(config.SHUFFLE ? shuffle(keys) : keys)]
 
-  if (mode === 'check') {
-    const checked = (DB.all() as Sahara[]).filter((i) => i.userInfo)
-    keys = keys.filter((i) => !checked.some((j) => j.key === i))
-    log(c.green(`Filtered ${c.yellow(checked.length)} already checked addresses`))
-  }
+  // if (mode === 'check') {
+  //   const checked = (DB.all() as Sahara[]).filter((i) => i.userInfo)
+  //   keys = keys.filter((i) => !checked.some((j) => j.key === i))
+  //   log(c.green(`Filtered ${c.yellow(checked.length)} already checked addresses`))
+  // }
 
-  if (mode === 'claim' || mode === 'sell') {
-    const eligible = (DB.all() as Sahara[]).filter((i) => i.userInfo?.total_amount !== '0')
+  if (mode === 'claim') {
+    // || mode === 'sell' || mode === 'check') {
+    const eligible = (DB.all() as Sahara[]).filter((i) => i.userInfo?.eligible_amount !== '0')
     keys = keys.filter((i) => eligible.some((j) => j.key === i))
     log(c.green(`Filtered ${c.yellow(eligible.length)} eligible addresses`))
   }
@@ -239,7 +241,7 @@ const stats = async () => {
 }
 
 const test = async () => {
-  return workFlow(keys.slice(9, 20), 'claim')
+  return workFlow(shuffle(keys).slice(9, 20), 'claim')
 }
 
 // Start modes

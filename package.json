@@ -7,6 +7,7 @@
   "scripts": {
     "start": "npx tsx index.ts",
     "test": "npx tsx index.ts test",
+    "check": "npx tsx index.ts check",
     "claim": "npx tsx index.ts claim",
     "odos": "npx tsx index.ts sell",
     "sell": "npx tsx index.ts sell",
