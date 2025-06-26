@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "preserveSymlinks": true,
+    "strictPropertyInitialization": true,
+    "target": "ESNext",
+    "typeRoots": ["./node_modules/@types", "./types"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "outDir": "./build",
+    "resolveJsonModule": true,
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "strict": true,
+    "baseUrl": "./src"
+  },
+  "exclude": ["**/node_modules/*", "node_modules/**/*.ts", "src/stores/*", "/*.csv", "src/credentials/*", "src/generated/*"]
+}

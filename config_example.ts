@@ -1,0 +1,18 @@
+export const config = {
+  CAPSOLVERS: [''],
+
+  SHUFFLE: true,
+  THREADS: 3,
+  MULTITHREAD_WAIT_BETWEEN_WALLETS: 1000,
+
+  SPINNER: true,
+  HIDE_ADDRESSES: false,
+
+  // ODOS
+  SELL_ON_ODOS: true,
+  ODOS_SLIPPAGE: 0.5,
+  ODOS_FROM: '0xFDFfB411C4A70AA7C95D5C981a6Fb4Da867e1111', // SAH (bsc)
+  ODOS_TO: '0x0000000000000000000000000000000000000000', // native
+  ODOS_GAS_PRICE: 'Standard', // Standard, Fast, Rapid
+  ODOS_MIN_AMOUNT: 1 // USD to start selling
+}
