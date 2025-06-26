@@ -1,5 +1,5 @@
 export const config = {
-  CAPSOLVERS: [''],
+  CAPSOLVERS: ['CAP-123456'],
 
   SHUFFLE: true,
   THREADS: 3,
@@ -10,9 +10,9 @@ export const config = {
 
   // ODOS
   SELL_ON_ODOS: true,
-  ODOS_SLIPPAGE: 0.5,
+  ODOS_SLIPPAGE: 1.5,
   ODOS_FROM: '0xFDFfB411C4A70AA7C95D5C981a6Fb4Da867e1111', // SAH (bsc)
-  ODOS_TO: '0x0000000000000000000000000000000000000000', // native
+  ODOS_TO: '0x55d398326f99059ff775485246999027b3197955', // USDT
   ODOS_GAS_PRICE: 'Standard', // Standard, Fast, Rapid
   ODOS_MIN_AMOUNT: 1 // USD to start selling
 }
