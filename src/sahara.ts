@@ -453,40 +453,6 @@ export class Sahara {
       })
   }
 
-  // bridge = async (chainId: number, toChainId: number, amount?: number, recipient = this.address) => {
-  //   const quoteParams = {
-  //     chainId,
-  //     toChainId,
-  //     currency: '0x0000000000000000000000000000000000000000',
-  //     toCurrency: '0x0000000000000000000000000000000000000000',
-  //     amount: amount ? parseEther(String(amount)).toString() : '100000000000000000000', // 0.0001 ETH
-  //     wallet: this.viemClient,
-  //     user: this.address,
-  //     recipient,
-  //     tradeType: 'EXACT_INPUT'
-  //   }
-  //   log(quoteParams)
-  //   const quote = await getClient()?.actions.getQuote(quoteParams)
-  //   if (!quote.fees) return this.l(c.red(`can't get quote fees from ${'Relay'}`))
-
-  //   // const fee = await this.nativeToUsd(from, parseFloat(formatUnits(BigInt(quote.fees.relayer!) + BigInt(quote.fees.gas!), from.nativeCurrency.decimals)))
-  //   // const maxBridgeCost = 0.025
-  //   // if (fee > maxBridgeCost) return this.l(`Relay bridge reverted, cost ${fee} USD, your limit ${maxBridgeCost} USD`)
-
-  //   const bridged = await Promise.race([
-  //     await getClient()?.actions.execute({
-  //       quote,
-  //       wallet: this.viemClient
-  //     }),
-  //     new Promise((resolve) => {
-  //       setTimeout(() => resolve(true), 60 * 1000)
-  //     })
-  //   ])
-
-  //   if (bridged) this.l(c.green(`Relay bridge success!`))
-  //   return bridged
-  // }
-
   claim = async () => {
     const bnb = await this.getTokenBalance('0x0000000000000000000000000000000000000000')
     if (bnb < parseEther('0.0005')) return this.error('no bnb balance!')
