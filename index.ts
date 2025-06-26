@@ -239,7 +239,7 @@ const stats = async () => {
 }
 
 const test = async () => {
-  return workFlow(keys.slice(9, 15), 'claim')
+  return workFlow(keys.slice(9, 20), 'claim')
 }
 
 // Start modes

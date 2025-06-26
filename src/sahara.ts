@@ -168,7 +168,6 @@ export class Sahara {
         return res
       })
       .catch((e) => {
-        log(e)
         return this.get('https://api.ipify.org?format=json')
           .then((res: any) => {
             this.info(`ip: ${c.yellow(res.ip)}`)
@@ -507,32 +506,39 @@ export class Sahara {
       .json()
       .catch((e: any) => this.error('failed to prepare claim:', e.message))
 
-    if (prepare.error) return this.error('failed to prepare claim:', prepare.error)
+    if (prepare.error) {
+      const balance = await this.getTokenBalance(config.ODOS_FROM)
+      if (balance > 0n && config.SELL_ON_ODOS) {
+        return this.sell(config.ODOS_FROM, config.ODOS_TO, true)
+      }
+      return this.error('failed to prepare claim or already claimed:', prepare.error)
+    }
 
-    const { earndropId, claim_fee, contract_address, signature, params } = prepare
-    log({ earndropId, claim_fee, contract_address, signature, params })
-
-    const claimParams = params.map((e: any) => ({
-      stageIndex: BigInt(e.stage_index),
-      leafIndex: BigInt(e.leaf_index),
-      account: this.address,
-      amount: BigInt(e.amount),
-      merkleProof: e.merkle_proof
-    }))
+    const { earndrop_id, claim_fee, contract_address, signature, params } = prepare.data
 
     return this.viemClient
       .writeContract({
+        account: this.account,
         address: contract_address,
         abi: ABI,
         functionName: 'claimEarndrop',
-        account: this.account,
-        value: claim_fee,
-        args: [earndropId, claimParams, signature]
+        value: BigInt(claim_fee),
+        args: [
+          BigInt(earndrop_id),
+          {
+            stageIndex: BigInt(params[0].stage_index),
+            leafIndex: BigInt(params[0].leaf_index),
+            account: this.address,
+            amount: BigInt(params[0].amount),
+            merkleProof: params[0].merkle_proof
+          },
+          signature
+        ]
       })
       .then(async (tx) => {
         this.success(`claim tx sent: ${c.blue('https://bscscan.com/tx/' + tx)}`)
         await this.viemClient.waitForTransactionReceipt({ hash: tx })
-        this.success(`claim tx confirmed: ${c.blue('https://bscscan.com/tx/' + tx)}`)
+        this.info(`claim tx confirmed: ${c.blue('https://bscscan.com/tx/' + tx)}`)
         await this.sleep(2000)
         if (config.SELL_ON_ODOS) await this.sell(config.ODOS_FROM, config.ODOS_TO, true)
         return tx
@@ -541,87 +547,6 @@ export class Sahara {
         this.error('failed to claim:', e.message)
         return null
       })
-
-    //   let s = (await n.json()).data;
-    //   let i = s.params.map(e => ({
-    //     stageIndex: BigInt(e.stage_index),
-    //     leafIndex: BigInt(e.leaf_index),
-    //     account: o,
-    //     amount: BigInt(e.amount),
-    //     merkleProof: e.merkle_proof
-    //   }));
-    //   let eh = async e => {
-    //     let {
-    //       earndropId: t,
-    //       account: a,
-    //       claimFeeAmount: n,
-    //       contractAddress: s,
-    //       signature: l,
-    //       claimParams: i
-    //     } = e;
-    //     if (i.length === 1) {
-    //       return (0, ex.E)(O.$W, {
-    //         abi: eu,
-    //         address: s,
-    //         functionName: "claimEarndrop",
-    //         account: a,
-    //         value: BigInt(n),
-    //         args: [BigInt(t), i[0], l]
-    //       });
-    //     } else {
-    //       return (0, ex.E)(O.$W, {
-    //         abi: eu,
-    //         address: s,
-    //         functionName: "multiClaimEarndrop",
-    //         account: a,
-    //         value: BigInt(n),
-    //         args: [BigInt(t), i, l]
-    //       });
-    //     }
-    //   };
-    //   let r = await eh({
-    //     earndropId: s.earndrop_id,
-    //     account: o,
-    //     claimFeeAmount: s.claim_fee,
-    //     contractAddress: s.contract_address,
-    //     claimParams: i,
-    //     signature: s.signature
-    //   });
-    //   await M({
-    //     tx: r,
-    //     address: o,
-    //     amount: i.reduce((e, t) => e + t.amount, BigInt(0)).toString()
-    //   });
-    //   await e(2000);
-    //   await l();
-    //   await S();
-    //   await (0, eb.n)(O.$W, {
-    //     hash: r
-    //   });
-    //   await e(3000);
-    //   await l();
-    //   await S();
-    //   b(true);
-    // } catch (t) {
-    //   let e = t.message;
-    //   if (e.includes("The total cost (gas")) {
-    //     (0, eg.toast)({
-    //       title: <div className="text-[#FC4832]">Claim Failed</div>,
-    //       className: "bg-black border-black",
-    //       description: <div className="text-white">Insufficient gas fee. Please ensure your wallet has enough BNB and try again.</div>,
-    //       type: "error"
-    //     });
-    //     return;
-    //   }
-    //   (0, eg.toast)({
-    //     title: <div className="text-[#FC4832]">Claim Failed</div>,
-    //     className: "bg-black border-black",
-    //     description: <div className="text-white">{e.substring(0, e.indexOf("."))}</div>,
-    //     type: "error"
-    //   });
-    // } finally {
-    //   x(false);
-    // }
   }
 
   check = async (force = false) => {
